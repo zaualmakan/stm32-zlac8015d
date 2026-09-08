@@ -1,6 +1,7 @@
-    ZLAC8015D driver integrated with STM32 ModBus RTU
+ZLAC8015D driver integrated with STM32 ModBus RTU
 
-    ZLAC8015D is a driver for Brushless DC motors; control requires the modbus or CAN connection.
+ZLAC8015D is a driver for Brushless DC motors; control requires the modbus or CAN connection.
+
 ----------------------------------
 A general MODBUS RTU protocol for STM32 microcontrollers
 
@@ -9,10 +10,10 @@ Now, the modbus protocol is capable of write single/multiple registers and read 
 It is a really basic protocol yet is pretty simple for expantion;
 The following link shows the basic function field for modbus(P.S. was used as a reference and explanotary material):
 
-https://www.modbustools.com/modbus.html
+    https://www.modbustools.com/modbus.html
 
 ---------------------------------------
-TO DO LIST
-1. Add ERROR handling function/interupt
-2. Expand the function field
-3. tbd...
+    TO DO LIST
+    1. Add ERROR handling function/interupt
+    2. Expand the function field
+    3. tbd...
