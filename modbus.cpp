@@ -51,8 +51,8 @@ modbus::status modbus::transact(const uint8_t* tx, uint16_t txLen, uint8_t* rx, 
         uint8_t byte;
         if(HAL_UART_Receive(uart_, &byte, 1, 5) == HAL_OK){
             rx[rxLen_++] = byte;
-            lastByte = HAL_GetTick();
-        } else if(rxLen_ > 0 && (HAL_GetTick() - lastByte) > gap){
+            byte = HAL_GetTick();
+        } else if(rxLen_ > 0 && (HAL_GetTick() - byte) > gap){
             break; // got a full frame hence gap says its done stop waiting
         }
 
