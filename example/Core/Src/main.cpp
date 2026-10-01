@@ -97,7 +97,7 @@ int main(void)
 
   modbus::status st = driver.disable_motor(0);
   int16_t lr_ms[2] = {1000, 1000};
-  int16_t rpm[2] = {-20, 20};
+  int16_t rpm[2] = {19, 19};
 
   if(st != modbus::status::OK){
     lr_ms[0] = 0;
@@ -114,10 +114,9 @@ int main(void)
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
   }
 
+  st = driver.enable_motor(0);
   
   st = driver.set_rpm(0, rpm);
-  
-  st = driver.enable_motor(0);
 
   /* USER CODE END 2 */
 

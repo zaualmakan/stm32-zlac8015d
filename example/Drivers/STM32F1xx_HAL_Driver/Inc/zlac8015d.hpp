@@ -101,7 +101,7 @@ class zlac8015d {
         // i have three drivers; modify the numbers depending on the 
         // number of drivers. Change the values of other function in source; if needed
         // In case of having one driver, it does not matter then '^'
-        static constexpr int list_of_ids[3] = {1, 2, 3};
+        static constexpr int list_of_ids[2] = {1, 2};
         static constexpr size_t NUM_DRIVERS = sizeof(list_of_ids)/sizeof(list_of_ids[0]);
 
         // constructor
