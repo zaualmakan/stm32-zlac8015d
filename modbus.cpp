@@ -23,10 +23,20 @@ void modbus::appendCrc(uint8_t *frame, uint16_t len){
     frame[len+1] = static_cast<uint8_t>((crc >> 8) & 0xFF);
 }
 
-// transmit mode set helper
+static inline void delayUs(uint32_t us){
+    if(!(DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk)){
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+        DWT->CYCCNT = 0;
+        DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    }
+    uint32_t ticks = us * (SystemCoreClock / 1000000U);
+    uint32_t start = DWT->CYCCNT;
+    while((DWT->CYCCNT - start) < ticks){}
+}
+
 void modbus::setTransmit(){
     HAL_GPIO_WritePin(dePort_, dePin_, GPIO_PIN_SET);
-    for(volatile int i = 0; i < 20; ++i){ __NOP(); }
+    delayUs(5);
 }
 
 // reciv mode set helper
@@ -37,6 +47,8 @@ void modbus::setReceive(){
 
 // request validity check
 modbus::status modbus::transact(const uint8_t* tx, uint16_t txLen, uint8_t* rx, uint16_t rxCap){
+    __HAL_UART_CLEAR_OREFLAG(uart_);
+    __HAL_UART_FLUSH_DRREGISTER(uart_);
     setTransmit();
     HAL_StatusTypeDef hs = HAL_UART_Transmit(uart_, const_cast<uint8_t*>(tx), txLen, timeoutMs_);
 
@@ -46,16 +58,18 @@ modbus::status modbus::transact(const uint8_t* tx, uint16_t txLen, uint8_t* rx, 
     // receiv array
     rxLen_ = 0;
     uint32_t start = HAL_GetTick();
-    constexpr uint32_t gap = 5; // should solve the delay between drivers issue
+    uint32_t lastRx = start;
+    constexpr uint32_t gap = 3; // should solve the delay between drivers issue
     while(HAL_GetTick() - start < timeoutMs_ && rxLen_ < rxCap){
         uint8_t byte;
-        if(HAL_UART_Receive(uart_, &byte, 1, 5) == HAL_OK){
+    
+        if(HAL_UART_Receive(uart_, &byte, 1, 1) == HAL_OK){
             rx[rxLen_++] = byte;
-            byte = HAL_GetTick();
-        } else if(rxLen_ > 0 && (HAL_GetTick() - byte) > gap){
-            break; // got a full frame hence gap says its done stop waiting
+            lastRx = HAL_GetTick();
         }
-
+        else if(rxLen_ > 0 && (HAL_GetTick() - lastRx) > gap){
+            break;
+        }
     }
 
     // shortest modbus fram is 5bytes, less is error or smth went wrong
